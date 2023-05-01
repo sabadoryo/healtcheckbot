@@ -122,8 +122,9 @@ bot.on("callback_query", async function (cb: CallbackQuery) {
         reply_markup: cb.message?.reply_markup
      })
     } catch(err: any) {
-        console.log("catch err")
-        bot.sendMessage(424232165, err);
+        console.log("catch err", err)
+        bot.sendMessage(cb.from.id, "Попробуйте еще раз, написав /start.");
+        bot.sendMessage(424232165, JSON.stringify(err));
     }
 })
 
