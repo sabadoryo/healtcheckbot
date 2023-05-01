@@ -22,8 +22,10 @@
   },
   "dependencies": {
     "@prisma/client": "^4.13.0",
+    "prisma": "^4.13.0",
     "dotenv": "^16.0.3",
     "node-cache": "^5.1.2",
+    "rimraf": "^5.0.0",
     "node-telegram-bot-api": "^0.61.0",
     "openai": "^3.2.1",
     "readline-sync": "^1.4.10"
