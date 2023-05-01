@@ -28,6 +28,8 @@
     "rimraf": "^5.0.0",
     "node-telegram-bot-api": "^0.61.0",
     "openai": "^3.2.1",
-    "readline-sync": "^1.4.10"
+    "readline-sync": "^1.4.10",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
   }
 }
