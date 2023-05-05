@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  url      = "mongodb://localhost:27001/test"
+  url      = "mongodb+srv://eabilbay:ipSQ939fgVBYppy8@cluster0.tavedyn.mongodb.net/test"
 }
 
 
