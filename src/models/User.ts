@@ -54,9 +54,16 @@ export async function getUserByTelegramIdWithFail(telegramId: string) {
 }
 
 export async function createUser(telegramId: string, cur_questionId: string | undefined, cur_testId: string | undefined) {
-    return (await getPrisma()).user.create({
-        data: {
+    return (await getPrisma()).user.upsert({
+        create: {
             telegram_id: telegramId,
+            cur_questionId: cur_questionId ?? "ERROR",
+            cur_testId: cur_testId ?? "ERROR"
+        },
+        where: {
+            telegram_id: telegramId
+        },
+        update: {
             cur_questionId: cur_questionId ?? "ERROR",
             cur_testId: cur_testId ?? "ERROR"
         },

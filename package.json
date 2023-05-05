@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "npx nodemon",
-    "build": "rimraf ./build && tsc",
-    "start": "npm run build && node build/index.js"
+    "build": "rimraf ./build && tsc && prisma generate",
+    "start": "node build/index.js"
   },
   "author": "",
   "license": "ISC",
@@ -22,10 +22,14 @@
   },
   "dependencies": {
     "@prisma/client": "^4.13.0",
+    "prisma": "^4.13.0",
     "dotenv": "^16.0.3",
     "node-cache": "^5.1.2",
+    "rimraf": "^5.0.0",
     "node-telegram-bot-api": "^0.61.0",
     "openai": "^3.2.1",
-    "readline-sync": "^1.4.10"
+    "readline-sync": "^1.4.10",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
   }
 }

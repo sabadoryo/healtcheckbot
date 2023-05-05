@@ -3,4 +3,7 @@ export type QuestionId = string;
 export type OptionId = string;
 
 
-export type CallbackData = `${TestId}:${QuestionId}:${OptionId}`
+export type CallbackData = {
+    questionId: QuestionId,
+    optionId: OptionId
+}

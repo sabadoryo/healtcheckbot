@@ -2,25 +2,69 @@ import { Question, User, UserAnswer } from "@prisma/client"
 import { CallbackData, OptionId, QuestionId } from "./types/CallbackData"
 import { getTestById, getTestByName } from "./models/Test"
 import { getNextQuestionByOrder } from "./models/Question"
+import { getUserByTelegramIdWithFail, updateUserCurState } from "./models/User";
+import { getUserAnswerByUserIdQuestionId, upsertUserAnswer } from "./models/UserAnswer";
+import { UserAnswerWithRelations } from "./types/UserAnswersWithRelation";
+import { UserWithRelations } from "./types/UserWithRelations";
+import { getUserTestSummary } from "./helpers";
+import { EventEmitter } from "stream";
+import { UserTestSummary } from "./types/UserTestSummary";
 
-export class SurveyStateController {
-    initialQuestions = {
-        0: "language",
-        1: "type_of_survey"
+
+
+export class SurveyStateController{
+    user: UserWithRelations;
+    telegramId : string;
+    callbackData: CallbackData;
+    userAnswer: UserAnswerWithRelations;
+    testStates = {}
+    langQuestionId: string;
+    result:any = {
+        type : "",
+        data: {}
     }
 
-    typesOfSurveys = {
-        anxiety : {
-            amountOfQuestions: 21    
-        },
-        depression: {
-            amountOfQuestions: 21
+    constructor(telegramId: string, callBackData: string) {
+        this.telegramId = telegramId;
+        this.callbackData = this.parseCallbackData(callBackData);
+    }
+
+    setResult(type: string, data: any) {
+        this.result = {
+            type,
+            data
         }
     }
 
-    points = {
-        max: 0,
-        min: 3
+    async processState() {
+        this.user = await getUserByTelegramIdWithFail(this.telegramId);
+        this.userAnswer = await upsertUserAnswer(this.user.id, this.callbackData.optionId, this.callbackData.questionId);
+        const nextQuestion = await this.getNextQuestion();
+        await updateUserCurState(this.telegramId, nextQuestion.nextQuestion.id, nextQuestion.nextQuestion.testId);
+
+        switch (nextQuestion.testState) {
+            case 'finished':
+                const userTestSummary: UserTestSummary  = await getUserTestSummary(this.telegramId, this.userAnswer.question.testId);
+                this.setResult("finished", {userTestSummary, nextQuestion});
+                break;
+
+            case 'open':
+                const userLangTestAnswer = await getUserAnswerByUserIdQuestionId(this.user.id, this.langQuestionId);
+                
+                let pref_lang;
+                if (userLangTestAnswer.option.text_ru) {
+                    pref_lang = "text_ru";
+                } else {
+                    pref_lang = "text_kz";
+                }
+
+                this.setResult("open", {nextQuestion, pref_lang})
+                break;
+
+            default:
+                this.setResult(nextQuestion.testState, nextQuestion);
+                break;
+        }
     }
 
     parseCallbackData(callback: string) {
@@ -40,15 +84,16 @@ export class SurveyStateController {
         return `${questionId}:${optionId}`
     }
 
-    async getNextQuestion(question: Question, userAnswer: any, curUserQuestion: Question) {
-        if (question.order < curUserQuestion.order && question.testId === curUserQuestion.testId) {
+    async getNextQuestion() {
+        if (this.userAnswer.question.order < this.user.cur_question.order && this.userAnswer.question.testId === this.user.cur_question.testId) {
             return {
-                nextQuestion: curUserQuestion,
+                nextQuestion: this.user.cur_question,
                 testState: "edited"
             }
         }
 
-        const nextQuestion = await getNextQuestionByOrder(question);
+        const nextQuestion = await getNextQuestionByOrder(this.userAnswer.question);
+
         if (nextQuestion) {
             return {
                 nextQuestion,
@@ -58,28 +103,27 @@ export class SurveyStateController {
             const deprTest = await getTestByName("depression");
             const anxietyTest = await getTestByName("anxiety");
 
-            if (userAnswer.option.text_ru === "Тревожность") {
+            if (this.userAnswer.option.text_ru === "Тревожность") {
                 return {
                     nextQuestion:anxietyTest.questions[0],
-                    testState: "new"
+                    testState: "open"
                 };
             }
 
-            if (userAnswer.option.text_ru === "Депрессия") {
+            if (this.userAnswer.option.text_ru === "Депрессия") {
                 return {
                     nextQuestion: deprTest.questions[0],
-                    testState: "new"
+                    testState: "open"
                 };
             }
             const langTest = await getTestByName("pref_lang");
 
+            this.langQuestionId = langTest.questions[0].id;
+
             return {
                 nextQuestion: langTest.questions[0],
-                testState: "start"    
+                testState: "finished"    
             };
         }
-
-
-
     }
 }
