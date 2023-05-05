@@ -1,5 +1,5 @@
 import { Question, User } from "@prisma/client";
-import TelegramBot, { ChatId, SendMessageOptions } from "node-telegram-bot-api";
+import TelegramBot, { Chat, ChatId, SendMessageOptions } from "node-telegram-bot-api";
 
 async function sendMessage(bot: TelegramBot, chatId: ChatId, text: string, options: SendMessageOptions) {
     return bot.sendMessage(chatId, text, options);
@@ -9,7 +9,7 @@ export async function sendIntroMessage(bot: TelegramBot,chatId: ChatId, question
     return await sendMessage(
         bot,
         chatId,
-        "Привет! Я - твой персональный телеграм-бот, созданный для проведения анкетирования на тему клинико-эпидемиологических аспектов распространенности симптомов тревожности и депрессии у женщин.\nЭто важное и актуальное исследование, которое поможет лучше понять и помочь женщинам, страдающим от этих проблем. Я буду задавать тебе ряд вопросов, которые помогут нам получить ценную информацию для нашего исследования.\nЕсли готовы, выберите язык:", 
+        "Если готовы, выберите язык:", 
         {
             reply_markup: {
                 inline_keyboard: [
@@ -26,6 +26,15 @@ export async function sendIntroMessage(bot: TelegramBot,chatId: ChatId, question
                 ]
             }
         }
+    )
+}
+
+export async function sendDonoHelpMessage(bot: TelegramBot, chatId: ChatId) {
+    return await sendMessage(
+        bot,
+        chatId,
+        "Чтобы поддержать этот проект, принимаем переводы на каспи: 4400 4302 4935 1898",
+        {}
     )
 }
 
