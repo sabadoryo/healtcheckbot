@@ -56,7 +56,7 @@ bot.on("callback_query", async function (cb: CallbackQuery) {
                 await sendDefaultQuestionMessage(
                     bot,
                     telegramId,
-                    `Результаты теста: ${surveyStateController.result.data.userTestSummary.test}(${surveyStateController.result.data.userTestSummary.sum}) - ${surveyStateController.result.data.userTestSummary.type}\n${surveyStateController.result.data.userTestSummary.text}`,
+                    `Результаты теста: ${surveyStateController.result.data.userTestSummary.type}\n${surveyStateController.result.data.userTestSummary.text}`,
                     {}
                 );
     

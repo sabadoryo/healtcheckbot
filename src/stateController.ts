@@ -44,7 +44,7 @@ export class SurveyStateController{
 
         switch (nextQuestion.testState) {
             case 'finished':
-                const userTestSummary: UserTestSummary  = await getUserTestSummary(this.telegramId, this.userAnswer.question.testId);
+                const userTestSummary: UserTestSummary  = await getUserTestSummary(this.telegramId, this.userAnswer.question.testId, this.langQuestionId);
                 this.setResult("finished", {userTestSummary, nextQuestion});
                 break;
 
